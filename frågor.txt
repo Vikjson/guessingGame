@@ -1,0 +1,77 @@
+Vad är pull repektive push?
+Kommandot git push används för att skicka upp en eller flera commits till ett remote repository,t.ex GitHub, så att ev collaborators kan se och komma åt arbetet.
+Kommandot git pull är när man istället hämtar ner alla de senaste ändringarna med commits,branches och historik till sitt lokala repository och uppdaterar det, så man tex har alla ändringar som ens kollegor har gjort.
+
+När använder man log respektive status?
+git log använder man för att se en lista av alla commits som har gjort och ser kommentarerna.
+git status visar alla aktuella ändringar som man har gjort i repositoryt (i branchen) som man inte ännu har addat till staging area eller commitat.
+
+Vad är en Git branch och varför är de viktiga?
+en branch är som en undanstoppad kopia av huvudbranchen som man kan arbeta med utan att förstöra något för den verkliga produkten. Man kan ha många branches och brukar använda dem för att skapa och laborera med nya funktioner och testa dem i lugn och ro så att de funkar innan man mergar dem med huvudprogrammet i main-branchen.
+
+Det finns flera sätt att rulla tillbaka koden till ett tidigare tillstånd. Förklara skillnaden och motivera när man skulle använda den ena eller andra metoden. Ge exempel på de kommandon du använder för att göra detta och vissa att det fungerar, vilken output du fick från git-kommandona.
+Tips: Gör exemplen med att backa i en branch så att master fortfarande är korrekt. 
+
+git revert 
+Skapar en ny commit, som tar bort ändringarna från en tidigare commit. Kan använda om ändringen redan är pushad och man vill visa för andra att man ångrar commiten.
+
+Exempel:
+vixi@DESKTOP-0K01SF5:~/yrgo/utvecklingsverktyg/workshop_git/Workshop_git$ git revert 200e4f2
+[feature-b d684e4e] Revert "Add test text to Main.java"
+ 2 files changed, 1 deletion(-)
+ delete mode 100644 Test.class
+
+git restore 
+Ändrar lokalt working area och ev staging area. Kan tex användas på en fil man inte har commitat än och vill ångra ändringar man har gjort. 
+
+Exempel: 
+vixi@DESKTOP-0K01SF5:~/yrgo/utvecklingsverktyg/workshop_git/Workshop_git$ git status
+On branch feature-b
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   Main.java
+
+no changes added to commit (use "git add" and/or "git commit -a")
+vixi@DESKTOP-0K01SF5:~/yrgo/utvecklingsverktyg/workshop_git/Workshop_git$ git restore Main.java
+vixi@DESKTOP-0K01SF5:~/yrgo/utvecklingsverktyg/workshop_git/Workshop_git$ git status
+On branch feature-b
+nothing to commit, working tree clean
+vixi@DESKTOP-0K01SF5:~/yrgo/utvecklingsverktyg/workshop_git/Workshop_git$
+
+git reset 
+flyttar HEAD till en tidigare commit. Ändrar historiken.
+
+Finns som varianter:
+--soft: Tex om du precis commitat och ångarar commit-texten. Då ligger fortfarande filerna kvar i staging area. Bara att köra git commit på nytt.
+--mixed: (default när man kör git reset) Committen ångras och staging area ångras. Tex om du råkade lägga till för många filer i commiten.
+--hard: Committen ångras helt och alla filens ändringar efter senaste commit slängs. Används tex om du testat en grej som inte alls blev bra och bara vill börja om från tidigare commit. 
+
+Exempel: vixi@DESKTOP-0K01SF5:~/yrgo/utvecklingsverktyg/workshop_git/Workshop_git$ git reset --hard
+HEAD is now at d684e4e Revert "Add test text to Main.java"
+
+
+____________________________________________________________________________________________________________________________________________
+
+Jag siktar på VG.
+
+Repo på GitHub: https://github.com/Vikjson/Rebase_Merge
+
+I mitt repo har jag en main branch och två feature branches.
+
+1: Jag har lagt till lite olika text i samma fil, info.txt, i båda brancherna. 
+Jag vill lägga till texten från featureB och ställer mig i main och kör git merge featureB. Det blev fast forward, dvs ingen konflikt, eftersom det inte fanns något innehåll i filen i main branchen som kunde ge konflikt. Därför blir historiken rak.
+
+2: Jag står i featureA och hämtar senaste ändringar från remote med git fetch.  Nu ska jag göra rebase med git rebase main. Jag får CONFLICT (content): Merge conflict in info.txt. Jag öppnar info.txt och justerar texten. Jag kör git add på info.txt och sen git rebase --continue. JAg går sedan till main branch med git switch main och kör git merge featireA (det blev fast forward för jag hade redan löst konflikt med rebase). Nu ligger committarna i en rak linje från main till featureA.
+
+3. Jag står i featireA och försöker göra merge med main. Eftersom det finns ändringar i info.txt på båda brancher så blir det konflikt, ingen fast forward. Jag löser konflikten i info.txt och gör add och commit. Nu syns mergen som en egen commit och historiken visar förgreningen.
+
+
+Skillnad på rebase och merge: 
+Merge slår ihop alla filer och bevarar förgreningen i historiken om det blir någon konflikt. Kan vara bra om man vill visa förgreningen, men det ser stökigt ut och man vill ofta ha den fast forward så det ser snyggt ut. Om man först kör rebase på sin branch så snyggar man till historiken så den ser linjär ut och man löser ev konflikter innan den mergas med main-branchen.
+
+
+
+
+
+
